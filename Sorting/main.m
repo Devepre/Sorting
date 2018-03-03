@@ -8,11 +8,15 @@
 #import "Cat.h"
 #import "QuickSort.h"
 
-static const int quantity = 1000 * 1000 * 10;
+//static const int quantity = 10;
+static const int quantity       = 10 * 1000 * 1000;
+static const BOOL isShuffled    = YES;
+
 static NSDate *methodStart;
 static NSMutableArray<Cat *> *cats;
 
 void report_memory(void);
+void performSortingCStruct(void);
 void performSortUsingCQSort(void);
 void performSortUsingArrayAndBlock(void);
 void performSortUsingArrayCopyAndBlock(void);
@@ -20,16 +24,17 @@ void performSortUsingDescriptors(void);
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
+        performSortingCStruct();
         performSortUsingCQSort();
         performSortUsingArrayAndBlock();
         performSortUsingArrayCopyAndBlock();
         performSortUsingDescriptors();
-//        performSortUsingManualQSort();
+//        performSortUsingManualQSort();    //limited size of array
     }
     return 0;
 }
 
-int cmpfunc (const void * a, const void * b) {
+int cmpfunc (const void *a, const void *b) {
     return (int)(*(Cat **)b).age - (int)(*(Cat **)a).age;
     
     // what is going here actually is:
@@ -38,6 +43,20 @@ int cmpfunc (const void * a, const void * b) {
 //    Cat **objB = b;
 //    Cat *catB = *objB;
 //    return catB.age - catA.age;
+}
+
+void swap_malloc (Cat **a, Cat **b) {
+    Cat *temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void randomize_malloc(Cat **arr, int n) {
+    srand((unsigned int)time(NULL));
+    for (int i = 0; i < n; i++) {
+        int j = rand() % (i + 1);
+        swap_malloc(&arr[i], &arr[j]);
+    }
 }
 
 void performSortUsingCQSort(void) {
@@ -52,6 +71,9 @@ void performSortUsingCQSort(void) {
         values[i] = newCat;
     }
     
+    if (isShuffled) {
+        randomize_malloc(values, quantity);
+    }
     printf("[%ld -> %ld]\n", values[0].age, values[quantity - 1].age);
     
     NSDate *methodStart = [NSDate date];
@@ -72,7 +94,7 @@ void beginTransaction(char *message) {
     printf("%s", message);
     report_memory();
     
-    cats = [Cat createArrayLength:quantity];
+    cats = [Cat createArrayLength:quantity isShuffled:isShuffled];
     printArrayTails(cats);
     methodStart = [NSDate date];
 }
@@ -136,6 +158,59 @@ void report_memory(void) {
     } else {
         printf("Error with task_info(): %s", mach_error_string(kerr));
     }
+}
+
+struct st_cat {
+    char *name;
+    long age;
+};
+
+int struct_cmp_by_price(const void *a, const void *b) {
+    struct st_cat *ia = (struct st_cat *)a;
+    struct st_cat *ib = (struct st_cat *)b;
+    return (int)(ib->age - ia->age);
+}
+
+void swap(struct st_cat *a, struct st_cat *b) {
+    struct st_cat temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void randomize(struct st_cat arr[], size_t n) {
+    srand((unsigned int)time(NULL));
+    for (int i = 0; i < n; i++) {
+        int j = rand() % (i + 1);
+        swap(&arr[i], &arr[j]);
+    }
+}
+
+void performSortingCStruct() {
+    printf("Sorting struct using C qsort:\n");
+    report_memory();
+    
+//    struct st_cat structs[quantity];
+//    size_t structs_len = sizeof(structs) / sizeof(struct st_cat);
+    struct st_cat *structs = malloc(sizeof(struct st_cat) * quantity);
+    
+    for (int i = 0; i < quantity; i++) {
+        structs[i].name = "Cat";
+        structs[i].age = i;
+    }
+    
+    size_t structs_len = quantity;
+    if (isShuffled) {
+        randomize(structs, structs_len);
+    }
+    printf("[%ld -> %ld]\n", structs[0].age, structs[quantity - 1].age);
+    
+    NSDate *methodStart = [NSDate date];
+    qsort(structs, structs_len, sizeof(struct st_cat), struct_cmp_by_price);
+    NSTimeInterval executionTime = [[NSDate date] timeIntervalSinceDate:methodStart];
+    
+    printf("[%ld -> %ld]\n", structs[0].age, structs[quantity - 1].age);
+    report_memory();
+    printf("%f\n\n", executionTime);
 }
 
 void extra(void) {

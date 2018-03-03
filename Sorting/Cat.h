@@ -7,7 +7,7 @@
 @property (strong, nonatomic) NSString *name2;
 @property (strong, nonatomic) NSString *name3;
 
-+ (NSMutableArray *)createArrayLength:(NSInteger)size;
++ (NSMutableArray *)createArrayLength:(NSInteger)size isShuffled:(BOOL)isShuffled;
 - (instancetype)initWithName:(NSString *)name andAge:(NSInteger)age;
 
 @end

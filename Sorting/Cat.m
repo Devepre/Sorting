@@ -11,7 +11,7 @@
     return self;
 }
 
-+ (NSMutableArray *)createArrayLength:(NSInteger)size {
++ (NSMutableArray *)createArrayLength:(NSInteger)size isShuffled:(BOOL)isShuffled {
     NSMutableArray *arr = [NSMutableArray new];
     
     for (int i = 0; i < size; i++) {
@@ -19,7 +19,9 @@
         [arr addObject:tempCat];
     }
     
-//    [self shuffleArray:arr];
+    if (isShuffled) {
+        [self shuffleArray:arr];
+    }
     
     return arr;
 //    return [arr copy];
