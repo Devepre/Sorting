@@ -2,7 +2,7 @@
 
 @implementation Cat
 
-- (instancetype)initWithName:(NSString *)name angAge:(NSInteger)age {
+- (instancetype)initWithName:(NSString *)name andAge:(NSInteger)age {
     self = [super init];
     if (self) {
         self.name = name;
@@ -15,7 +15,7 @@
     NSMutableArray *arr = [NSMutableArray new];
     
     for (int i = 0; i < size; i++) {
-        Cat *tempCat = [[Cat alloc] initWithName:@"Cat" angAge:i];
+        Cat *tempCat = [[Cat alloc] initWithName:@"Cat" andAge:i];
         [arr addObject:tempCat];
     }
     

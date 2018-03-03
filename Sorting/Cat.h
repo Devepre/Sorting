@@ -4,8 +4,10 @@
 
 @property (strong, nonatomic) NSString *name;
 @property (assign, nonatomic) NSInteger age;
+@property (strong, nonatomic) NSString *name2;
+@property (strong, nonatomic) NSString *name3;
 
 + (NSMutableArray *)createArrayLength:(NSInteger)size;
-- (instancetype)initWithName:(NSString *)name angAge:(NSInteger)age;
+- (instancetype)initWithName:(NSString *)name andAge:(NSInteger)age;
 
 @end

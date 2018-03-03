@@ -12,18 +12,21 @@ static const int quantity = 1000 * 1000 * 10;
 static NSDate *methodStart;
 static NSMutableArray<Cat *> *cats;
 
-void report_memory(void) {
-    struct task_basic_info info;
-    mach_msg_type_number_t size = sizeof(info);
-    kern_return_t kerr = task_info(mach_task_self(),
-                                   TASK_BASIC_INFO,
-                                   (task_info_t)&info,
-                                   &size);
-    if( kerr == KERN_SUCCESS ) {
-        printf("Memory occupation: %f\n", ((CGFloat)info.resident_size / 1000000));
-    } else {
-        printf("Error with task_info(): %s", mach_error_string(kerr));
+void report_memory(void);
+void performSortUsingCQSort(void);
+void performSortUsingArrayAndBlock(void);
+void performSortUsingArrayCopyAndBlock(void);
+void performSortUsingDescriptors(void);
+
+int main(int argc, const char * argv[]) {
+    @autoreleasepool {
+        performSortUsingCQSort();
+        performSortUsingArrayAndBlock();
+        performSortUsingArrayCopyAndBlock();
+        performSortUsingDescriptors();
+//        performSortUsingManualQSort();
     }
+    return 0;
 }
 
 int cmpfunc (const void * a, const void * b) {
@@ -37,12 +40,12 @@ int cmpfunc (const void * a, const void * b) {
 //    return catB.age - catA.age;
 }
 
-void performSortUsingC(void) {
+void performSortUsingCQSort(void) {
     printf("Sorting using C qsort and malloc:\n");
     report_memory();
-    
-    Cat **values = malloc(8 * quantity);
-//    Cat* values[quantity];
+
+    Cat **values = malloc(sizeof(pointer_t) * quantity);
+//    Cat *values[quantity];
     for (int i = 0; i < quantity; i++) {
         Cat *newCat = [Cat new];
         newCat.age = i;
@@ -80,7 +83,6 @@ void endTransaction(void) {
     report_memory();
     printf("%f\n\n", executionTime);
     cats = nil;
-    [cats release];
 }
 
 void performSortUsingArrayAndBlock(void) {
@@ -122,17 +124,19 @@ void performSortUsingManualQSort(void) {
     endTransaction();
 }
 
-int main(int argc, const char * argv[]) {
-    @autoreleasepool {
-        performSortUsingC();
-        performSortUsingArrayAndBlock();
-        performSortUsingArrayCopyAndBlock();
-        performSortUsingDescriptors();
-//        performSortUsingManualQSort();
+void report_memory(void) {
+    struct task_basic_info info;
+    mach_msg_type_number_t size = sizeof(info);
+    kern_return_t kerr = task_info(mach_task_self(),
+                                   TASK_BASIC_INFO,
+                                   (task_info_t)&info,
+                                   &size);
+    if( kerr == KERN_SUCCESS ) {
+        printf("Memory occupation: %f\n", ((CGFloat)info.resident_size / 1000000));
+    } else {
+        printf("Error with task_info(): %s", mach_error_string(kerr));
     }
-    return 0;
 }
-
 
 void extra(void) {
     /*
